@@ -1,0 +1,5 @@
+name: Conditions
+description: Provide condition plugins and logical APIs which do not exist in core.
+type: module
+core_version_requirement: ^10.2 | ^11
+php: 8.2
