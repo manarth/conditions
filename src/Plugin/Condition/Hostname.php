@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Drupal\conditions\Plugin\Condition;
 
+use Drupal\conditions\ComparisonOperator\Operators;
 use Drupal\Core\Condition\ConditionPluginBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
@@ -45,29 +46,47 @@ class Hostname extends ConditionPluginBase implements ContainerFactoryPluginInte
       ->getHttpHost();
 
     return new static(
-        $configuration,
-        $plugin_id,
-        $plugin_definition,
-        $hostname,
-      );
+      $configuration,
+      $plugin_id,
+      $plugin_definition,
+      $hostname,
+    );
   }
 
   /**
    * {@inheritdoc}
    */
   public function buildConfigurationForm(array $form, FormStateInterface $form_state) {
-    $form['#attached']['library'][] = 'conditions/theme';
+    $form['#attached']['library'][] = 'conditions/admin';
 
     $form['wrapper'] = [
       '#type' => 'fieldset',
       '#title' => $this->t('Hostname'),
+      '#attributes' => [
+        'class' => [
+          'condition',
+          $this->getPluginId(),
+        ],
+      ],
     ];
+
+    $form['wrapper']['comparison_operator'] = [
+      '#type' => 'comparison_operator',
+      '#title' => $this->t('Operator'),
+      '#default_value' => $this->configuration['comparison_operator'],
+    ];
+
     $form['wrapper']['hostname'] = [
       '#type' => 'textfield',
-      '#title' => $this->t('Name'),
-      '#description' => $this->t('Host-names are not case-sensitive.<br />Do not include https:// or the path.'),
+      '#title' => $this->t('Hostname'),
+      '#title_display' => 'attribute',
+      '#description' => $this->t('Hostnames are not case-sensitive.<br />Do not include https:// or the path.'),
       '#default_value' => $this->configuration['hostname'],
+      '#required' => TRUE,
       '#attributes' => [
+        'class' => [
+          'hostname',
+        ],
         'placeholder' => 'www.example.com',
       ],
     ];
@@ -79,7 +98,11 @@ class Hostname extends ConditionPluginBase implements ContainerFactoryPluginInte
    * {@inheritdoc}
    */
   public function evaluate() : bool {
-    return strcasecmp($this->configuration['hostname'], $this->hostname) == 0;
+    $operator = Operators::getOperatorFor($this->configuration['comparison_operator']);
+    return $operator->compare(
+      $this->configuration['hostname'],
+      $this->hostname,
+    );
   }
 
   /**

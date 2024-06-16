@@ -1,2 +1,16 @@
-/* TODO: env-vars should be UPPERCASE */
-/* TODO: hostnames should be LOWERCASE */
+fieldset.condition div.fieldset__wrapper {
+  display: table-row;
+}
+fieldset.condition div.fieldset__wrapper>div.form-item {
+  display: table-cell;
+  padding: 5px;
+}
+fieldset.condition div.fieldset__wrapper>div.form-item input[type="text"] {
+  width: 100%;
+}
+.condition.environment_variable input.variable_name {
+  text-transform: uppercase;
+}
+.condition.hostname input.hostname {
+  text-transform: lowercase;
+}
