@@ -1,9 +1,15 @@
 fieldset.condition div.fieldset__wrapper {
-  display: table-row;
+  padding: 2px 8px
 }
 fieldset.condition div.fieldset__wrapper>div.form-item {
   display: table-cell;
+}
+fieldset.condition div.fieldset__wrapper div.form-item {
   padding: 5px;
+  margin: 0;
+}
+fieldset.condition div.fieldset__wrapper>div.form-item label {
+  margin: 0;
 }
 fieldset.condition div.fieldset__wrapper>div.form-item input[type="text"] {
   width: 100%;

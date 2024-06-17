@@ -37,6 +37,7 @@ class ComparisonOperator extends FormElement {
       '#compare_bitwise' => FALSE,
 
       '#compare_string_case' => TRUE,
+      '#case_sensitive' => FALSE,
 
       '#theme_wrappers' => [
         'form_element',
@@ -64,6 +65,7 @@ class ComparisonOperator extends FormElement {
       '#type' => 'select',
       '#title' => $element['#title'],
       '#options' => $element['#options'] ?? $this->getOptions($this->evaluateOperators($element)),
+      '#default_value' => $element['#default_value']
     ];
     unset($element['#title']);
     return $element;
@@ -99,12 +101,14 @@ class ComparisonOperator extends FormElement {
    */
   public function addCaseSensitiveField($element, &$form_state) {
     if ($element['#compare_string_case'] && $element['#compare_string']) {
-      $tree = $element['#array_parents'];
+      $tree = $element['#parents'];
       $tree[] = 'operator';
       $field = $this->getFieldNameForTree($tree);
       $element['case_sensitive'] = [
         '#type' => 'checkbox',
         '#title' => $this->t('Case sensitive'),
+        '#default_value' => $element['#case_sensitive'],
+
         '#states' => [
           'enabled' => [
             ':input[name="' . $field . '"]' => [],
@@ -191,7 +195,8 @@ class ComparisonOperator extends FormElement {
    */
   protected function getFieldNameForTree(array $tree) : string {
     $fieldName = array_shift($tree);
-    while ($identifier = array_shift($tree)) {
+    while (count($tree)) {
+      $identifier = array_shift($tree);
       $fieldName .= "[{$identifier}]";
     }
     return $fieldName;
