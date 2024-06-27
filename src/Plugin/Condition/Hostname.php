@@ -73,6 +73,7 @@ class Hostname extends ConditionPluginBase implements ContainerFactoryPluginInte
     $form['wrapper']['comparison_operator'] = [
       '#type' => 'comparison_operator',
       '#title' => $this->t('Operator'),
+      '#title_display' => 'attribute',
       '#default_value' => $this->configuration['comparison_operator'],
     ];
 

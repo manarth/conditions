@@ -64,6 +64,7 @@ class ComparisonOperator extends FormElement {
     $element['operator'] = [
       '#type' => 'select',
       '#title' => $element['#title'],
+      '#title_display' => $element['#title_display'],
       '#options' => $element['#options'] ?? $this->getOptions($this->evaluateOperators($element)),
       '#default_value' => $element['#default_value'],
     ];
