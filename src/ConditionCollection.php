@@ -12,6 +12,13 @@ use Drupal\Core\Condition\ConditionInterface;
 class ConditionCollection implements ConditionCollectionInterface {
 
   /**
+   * Parent collection, when used with nested groups.
+   *
+   * @var \Drupal\conditions\ConditionCollectionInterface
+   */
+  protected ?ConditionCollectionInterface $parent = NULL;
+
+  /**
    * Sequence of Conditions and operators.
    *
    * @var array
@@ -21,10 +28,13 @@ class ConditionCollection implements ConditionCollectionInterface {
   /**
    * Constructor.
    *
-   * @param \Drupal\conditions\ConditionCollection $parent
-   *   When collection-groups are used, this references the parent collection.
+   * @param \Drupal\Core\Condition\ConditionInterface $condition
+   *   (optional) Initiate the collection with a starting condition.
    */
-  public function __construct(protected ?ConditionCollectionInterface $parent = NULL) {
+  public function __construct(?ConditionInterface $condition = NULL) {
+    if ($condition) {
+      $this->condition($condition);
+    }
   }
 
   /**
@@ -49,7 +59,8 @@ class ConditionCollection implements ConditionCollectionInterface {
    */
   public function startGroup() : ConditionCollectionInterface {
     $this->validateAction(__FUNCTION__);
-    $conditionCollection = new ConditionCollection($this);
+    $conditionCollection = new ConditionCollection();
+    $conditionCollection->setParent($this);
     $this->sequence[] = $conditionCollection;
     return $conditionCollection;
   }
@@ -65,36 +76,74 @@ class ConditionCollection implements ConditionCollectionInterface {
   /**
    * {@inheritdoc}
    */
-  public function and() : ConditionCollectionInterface {
-    $this->validateAction(__FUNCTION__);
-    $this->sequence[] = LogicalOperator::And;
-    return $this;
+  public function and(?ConditionInterface $condition = NULL) : ConditionCollectionInterface {
+    return $this->add(
+      __FUNCTION__,
+      LogicalOperator::And,
+      $condition,
+    );
   }
 
   /**
    * {@inheritdoc}
    */
-  public function not() : ConditionCollectionInterface {
-    $this->validateAction(__FUNCTION__);
-    $this->sequence[] = LogicalOperator::Not;
-    return $this;
+  public function not(?ConditionInterface $condition = NULL) : ConditionCollectionInterface {
+    return $this->add(
+      __FUNCTION__,
+      LogicalOperator::Not,
+      $condition,
+    );
   }
 
   /**
    * {@inheritdoc}
    */
-  public function or() : ConditionCollectionInterface {
-    $this->validateAction(__FUNCTION__);
-    $this->sequence[] = LogicalOperator::Or;
-    return $this;
+  public function or(?ConditionInterface $condition = NULL) : ConditionCollectionInterface {
+    return $this->add(
+      __FUNCTION__,
+      LogicalOperator::Or,
+      $condition,
+    );
   }
 
   /**
    * {@inheritdoc}
    */
-  public function xor() : ConditionCollectionInterface {
-    $this->validateAction(__FUNCTION__);
-    $this->sequence[] = LogicalOperator::Xor;
+  public function xor(?ConditionInterface $condition = NULL) : ConditionCollectionInterface {
+    return $this->add(
+      __FUNCTION__,
+      LogicalOperator::Xor,
+      $condition,
+    );
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setParent(ConditionCollectionInterface $parent) : ConditionCollectionInterface {
+    $this->parent = $parent;
+    return $this;
+  }
+
+  /**
+   * Add an operator and an optional condition.
+   *
+   * @param string $action
+   *   Method-name of the operator being called.
+   * @param \Drupal\conditions\LogicalOperator $operator
+   *   The operator to add.
+   * @param \Drupal\Core\Condition\ConditionInterface $condition
+   *   (optional) A condition to add following the operator.
+   *
+   * @return static
+   *   Return $this for method chaining.
+   */
+  protected function add(string $action, LogicalOperator $operator, ?ConditionInterface $condition = NULL) : ConditionCollectionInterface {
+    $this->validateAction($action);
+    $this->sequence[] = $operator;
+    if ($condition) {
+      $this->condition($condition);
+    }
     return $this;
   }
 

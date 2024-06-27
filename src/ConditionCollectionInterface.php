@@ -55,33 +55,56 @@ interface ConditionCollectionInterface {
   /**
    * Logical AND.
    *
+   * @param \Drupal\Core\Condition\ConditionInterface $condition
+   *   (optional) Condition to add following the logical operator.
+   *
    * @return static
    *   Return $this for method chaining.
    */
-  public function and() : ConditionCollectionInterface;
+  public function and(?ConditionInterface $condition = NULL) : ConditionCollectionInterface;
 
   /**
    * Logical NOT.
    *
+   * @param \Drupal\Core\Condition\ConditionInterface $condition
+   *   (optional) Condition to add following the logical operator.
+   *
    * @return static
    *   Return $this for method chaining.
    */
-  public function not() : ConditionCollectionInterface;
+  public function not(?ConditionInterface $condition = NULL) : ConditionCollectionInterface;
 
   /**
    * Logical OR.
    *
-   * @return static
-   *   Return $this for method chaining.
-   */
-  public function or() : ConditionCollectionInterface;
-
-  /**
-   * Logical EXCLUSIVE OR.
+   * @param \Drupal\Core\Condition\ConditionInterface $condition
+   *   (optional) Condition to add following the logical operator.
    *
    * @return static
    *   Return $this for method chaining.
    */
-  public function xor() : ConditionCollectionInterface;
+  public function or(?ConditionInterface $condition = NULL) : ConditionCollectionInterface;
+
+  /**
+   * Logical EXCLUSIVE OR.
+   *
+   * @param \Drupal\Core\Condition\ConditionInterface $condition
+   *   (optional) Condition to add following the logical operator.
+   *
+   * @return static
+   *   Return $this for method chaining.
+   */
+  public function xor(?ConditionInterface $condition = NULL) : ConditionCollectionInterface;
+
+  /**
+   * Set the parent collection container, when creating a grouped colllection.
+   *
+   * @param \Drupal\conditions\ConditionCollectionInterface $parent
+   *   The parent collection.
+   *
+   * @return static
+   *   Return $this for method chaining.
+   */
+  public function setParent(ConditionCollectionInterface $parent) : ConditionCollectionInterface;
 
 }
