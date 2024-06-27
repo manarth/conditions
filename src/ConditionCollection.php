@@ -122,6 +122,7 @@ class ConditionCollection implements ConditionCollectionInterface {
   protected function evaluateLogic() : bool {
     $evaluation = array_map([$this, 'getToken'], $this->sequence);
     $evaluation = implode(' ', $evaluation);
+    $evaluation = sprintf('return %s;', $evaluation);
 
     // As the `$evaluation` variable will only contain the defined, safe
     // keywords provided by `getToken()`, it is safe to use `eval()`.
