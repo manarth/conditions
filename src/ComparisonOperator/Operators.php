@@ -25,15 +25,19 @@ class Operators {
    *   The enum case.
    *
    * @return \Drupal\conditions\ComparisonOperator\ComparisonOperatorInterface
-   *   A comparison operator enum, or NULL if the case is not matched.
+   *   A comparison operator enum.
+   *
+   * @throws \Exception
+   *   If the operator cannot be identified.
    */
-  public static function getOperatorFor(string $case) : ?ComparisonOperatorInterface {
+  public static function getOperatorFor(string $case) : ComparisonOperatorInterface {
     foreach (self::OPERATORS as $clazz) {
       $operators = array_column($clazz::cases(), 'name');
       if (in_array($case, $operators)) {
         return constant("{$clazz}::{$case}");
       }
     }
+    throw new \Exception('Unrecognised operator.');
   }
 
   /**
