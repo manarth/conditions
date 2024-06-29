@@ -1,0 +1,18 @@
+---
+services:
+  conditions.serializer.normalizer.condition_collection:
+    class: Drupal\conditions\Normalizer\ConditionCollectionNormalizer
+    tags:
+      - { name: normalizer, priority: 5 }
+
+  conditions.serializer.normalizer.condition_plugin:
+    class: Drupal\conditions\Normalizer\ConditionPluginNormalizer
+    arguments:
+      - '@plugin.manager.condition'
+    tags:
+      - { name: normalizer, priority: 5 }
+
+  conditions.serializer.normalizer.logical_operator:
+    class: Drupal\conditions\Normalizer\LogicalOperatorNormalizer
+    tags:
+      - { name: normalizer, priority: }

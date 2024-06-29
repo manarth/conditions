@@ -9,7 +9,7 @@ use Drupal\Core\Condition\ConditionInterface;
 /**
  * Store and evaluate a collection of collections with logical operators.
  */
-interface ConditionCollectionInterface {
+interface ConditionCollectionInterface extends \SeekableIterator, \ArrayAccess, \Serializable, \Countable {
 
   /**
    * Evaluate whether the conditions and operators resolve to TRUE or FALSE.

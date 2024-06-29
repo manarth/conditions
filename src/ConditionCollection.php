@@ -7,9 +7,9 @@ namespace Drupal\conditions;
 use Drupal\Core\Condition\ConditionInterface;
 
 /**
- * Store and evaluate a collection of collections with logical operators.
+ * Store and evaluate a collection of conditions with logical operators.
  */
-class ConditionCollection implements ConditionCollectionInterface {
+class ConditionCollection extends \ArrayIterator implements ConditionCollectionInterface {
 
   /**
    * Parent collection, when used with nested groups.
@@ -17,13 +17,6 @@ class ConditionCollection implements ConditionCollectionInterface {
    * @var \Drupal\conditions\ConditionCollectionInterface
    */
   protected ?ConditionCollectionInterface $parent = NULL;
-
-  /**
-   * Sequence of Conditions and operators.
-   *
-   * @var array
-   */
-  protected array $sequence = [];
 
   /**
    * Constructor.
@@ -50,7 +43,7 @@ class ConditionCollection implements ConditionCollectionInterface {
    */
   public function condition(ConditionInterface $condition) : ConditionCollectionInterface {
     $this->validateAction(__FUNCTION__);
-    $this->sequence[] = $condition;
+    $this->append($condition);
     return $this;
   }
 
@@ -61,7 +54,7 @@ class ConditionCollection implements ConditionCollectionInterface {
     $this->validateAction(__FUNCTION__);
     $conditionCollection = new ConditionCollection();
     $conditionCollection->setParent($this);
-    $this->sequence[] = $conditionCollection;
+    $this->append($conditionCollection);
     return $conditionCollection;
   }
 
@@ -140,7 +133,7 @@ class ConditionCollection implements ConditionCollectionInterface {
    */
   protected function add(string $action, LogicalOperator $operator, ?ConditionInterface $condition = NULL) : ConditionCollectionInterface {
     $this->validateAction($action);
-    $this->sequence[] = $operator;
+    $this->append($operator);
     if ($condition) {
       $this->condition($condition);
     }
@@ -151,13 +144,13 @@ class ConditionCollection implements ConditionCollectionInterface {
    * Evaluate each of the conditions, resolving each to a boolean.
    */
   protected function evaluateConditions() : void {
-    foreach ($this->sequence as $key => $entry) {
+    foreach ($this as $key => $entry) {
       if ($entry instanceof ConditionInterface) {
         $result = $entry->evaluate();
-        $this->sequence[$key] = $entry->isNegated() ? !$result : $result;
+        $this[$key] = $entry->isNegated() ? !$result : $result;
       }
       if ($entry instanceof ConditionCollectionInterface) {
-        $this->sequence[$key] = $entry->evaluate();
+        $this[$key] = $entry->evaluate();
       }
     }
   }
@@ -169,7 +162,7 @@ class ConditionCollection implements ConditionCollectionInterface {
    *   The result of performing the logical operators on the sequence.
    */
   protected function evaluateLogic() : bool {
-    $evaluation = array_map([$this, 'getToken'], $this->sequence);
+    $evaluation = array_map([$this, 'getToken'], $this->getArrayCopy());
     $evaluation = implode(' ', $evaluation);
     $evaluation = sprintf('return %s;', $evaluation);
 
@@ -208,7 +201,7 @@ class ConditionCollection implements ConditionCollectionInterface {
    *   An exception is thrown when an action cannot be performed.
    */
   protected function validateAction(string $action) {
-    $latest = end($this->sequence);
+    $latest = end($this->getArrayCopy());
 
     switch ($action) {
       case 'condition':
